@@ -259,12 +259,12 @@ func (d *driver) GetContent(context context.Context, path string) ([]byte, error
 		return nil, err
 	}
 	name := d.pathToKey(path)
-	var rc io.ReadCloser
-	err = retry(func() error {
-		var err error
-		rc, err = client.Bucket(d.bucket).Object(name).NewReader(context)
-		return err
-	})
+	//var rc io.ReadCloser
+	//	err = retry(func() error {
+	//		var err error
+	//		return err
+	//	})
+	rc, err := client.Bucket(d.bucket).Object(name).NewReader(context)
 	if err == storage.ErrObjectNotExist {
 		return nil, storagedriver.PathNotFoundError{Path: path}
 	}
@@ -391,13 +391,10 @@ type writer struct {
 func (w *writer) Cancel() error {
 	w.closed = true
 	err := storageDeleteObject(context.Background(), w.bucket, w.name, w.clientConf)
-	if err != nil {
-		if status, ok := err.(*googleapi.Error); ok {
-			if status.Code == http.StatusNotFound {
-				err = nil
-			}
-		}
+	if err == storage.ErrObjectNotExist {
+		return storagedriver.PathNotFoundError{Path: w.name}
 	}
+
 	return err
 }
 
@@ -682,10 +679,11 @@ func (d *driver) List(context context.Context, path string) ([]string, error) {
 		// GCS does not guarantee strong consistency between
 		// DELETE and LIST operations. Check that the object is not deleted,
 		// and filter out any objects with a non-zero time-deleted
-		if object.Deleted.IsZero() && object.ContentType != uploadSessionContentType {
+		if object.Deleted.IsZero() && object.ContentType != uploadSessionContentType && object.Name != "" {
+
 			list = append(list, d.keyToPath(object.Name))
 		}
-		if object.Prefix != "" {
+		if object.Name == "" && object.Prefix != "" {
 			subpath := d.keyToPath(object.Prefix)
 			list = append(list, subpath)
 		}
@@ -767,12 +765,8 @@ func (d *driver) Delete(context context.Context, path string) error {
 		return nil
 	}
 	err = storageDeleteObject(context, d.bucket, d.pathToKey(path), d.clientConf)
-	if err != nil {
-		if status, ok := err.(*googleapi.Error); ok {
-			if status.Code == http.StatusNotFound {
-				return storagedriver.PathNotFoundError{Path: path}
-			}
-		}
+	if err == storage.ErrObjectNotExist {
+		return storagedriver.PathNotFoundError{Path: path}
 	}
 	return err
 }
