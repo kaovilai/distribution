@@ -180,7 +180,7 @@ func FromParameters(parameters map[string]interface{}) (storagedriver.StorageDri
 		}
 
 		jsonConf, err = json.MarshalIndent(stringMap, "", "    ")
-		fmt.Println(string(jsonConf))
+
 		if err != nil {
 			return nil, fmt.Errorf("Failed to marshal gcs credentials to json")
 		}
@@ -239,7 +239,7 @@ func New(params driverParameters) (storagedriver.StorageDriver, error) {
 	return &Wrapper{
 		baseEmbed: baseEmbed{
 			Base: base.Base{
-				StorageDriver: base.NewRegulator(d, params.maxConcurrency),
+				StorageDriver: d,
 			},
 		},
 	}, nil
@@ -254,7 +254,6 @@ func (d *driver) Name() string {
 // GetContent retrieves the content stored at "path" as a []byte.
 // This should primarily be used for small objects.
 func (d *driver) GetContent(context context.Context, path string) ([]byte, error) {
-	fmt.Println(d.clientConf)
 	client, err := storage.NewClient(context, option.WithCredentialsJSON(d.clientConf))
 	if err != nil {
 		return nil, err
@@ -840,7 +839,6 @@ func storageCopyObject(context context.Context, srcBucket, srcName string, destB
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(attrs)
 
 	attrs, err = dst.CopierFrom(src).Run(context)
 	if err != nil {

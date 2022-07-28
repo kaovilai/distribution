@@ -77,6 +77,7 @@ func init() {
 			privateKey:    privateKey,
 			client:        oauth2.NewClient(dcontext.Background(), ts),
 			chunkSize:     defaultChunkSize,
+			jsonConf:      []byte(credentials),
 		}
 
 		return New(parameters)
