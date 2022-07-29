@@ -259,11 +259,7 @@ func (d *driver) GetContent(context context.Context, path string) ([]byte, error
 		return nil, err
 	}
 	name := d.pathToKey(path)
-	//var rc io.ReadCloser
-	//	err = retry(func() error {
-	//		var err error
-	//		return err
-	//	})
+
 	rc, err := client.Bucket(d.bucket).Object(name).NewReader(context)
 	if err == storage.ErrObjectNotExist {
 		return nil, storagedriver.PathNotFoundError{Path: path}
@@ -560,14 +556,12 @@ func (w *writer) Write(p []byte) (int, error) {
 		}
 		nn += n
 	}
+	w.size = w.offset + int64(w.buffSize)
 	return nn, err
 }
 
 // Size returns the number of bytes written to this FileWriter.
 func (w *writer) Size() int64 {
-	if !w.closed {
-		return w.offset
-	}
 	return w.size
 }
 
