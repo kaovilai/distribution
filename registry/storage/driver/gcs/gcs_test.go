@@ -9,13 +9,13 @@ import (
 	"os"
 	"testing"
 
+	"cloud.google.com/go/storage"
 	dcontext "github.com/distribution/distribution/v3/context"
 	storagedriver "github.com/distribution/distribution/v3/registry/storage/driver"
 	"github.com/distribution/distribution/v3/registry/storage/driver/testsuites"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/googleapi"
-	"google.golang.org/cloud/storage"
 	"gopkg.in/check.v1"
 )
 
@@ -77,6 +77,7 @@ func init() {
 			privateKey:    privateKey,
 			client:        oauth2.NewClient(dcontext.Background(), ts),
 			chunkSize:     defaultChunkSize,
+			jsonConf:      []byte(credentials),
 		}
 
 		return New(parameters)
