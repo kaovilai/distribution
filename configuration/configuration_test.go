@@ -33,15 +33,14 @@ var configStruct = Configuration{
 	},
 	Storage: Storage{
 		"s3": Parameters{
-			"region":        "us-east-1",
-			"bucket":        "my-bucket",
-			"rootdirectory": "/registry",
-			"encrypt":       true,
-			"secure":        false,
-			"accesskey":     "SAMPLEACCESSKEY",
-			"secretkey":     "SUPERSECRET",
-			"host":          nil,
-			"port":          42,
+			"region":         "us-east-1",
+			"bucket":         "my-bucket",
+			"rootdirectory":  "/registry",
+			"encrypt":        true,
+			"secure":         false,
+			"accesskey":      "SAMPLEACCESSKEY",
+			"secretkey":      "SUPERSECRET",
+			"regionendpoint": "https://s3.amazonaws.com",
 		},
 	},
 	Auth: Auth{
@@ -144,8 +143,7 @@ storage:
     secure: false
     accesskey: SAMPLEACCESSKEY
     secretkey: SUPERSECRET
-    host: ~
-    port: 42
+    regionendpoint: https://s3.amazonaws.com
 auth:
   silly:
     realm: silly
